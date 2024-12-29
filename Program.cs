@@ -1,93 +1,112 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using System;
 
-Console.Write("Enter the value of n: ");
-int n = int.Parse(Console.ReadLine());
-
-double S1 = CalculateS1(n);
-double S2 = CalculateS2(n);
-double S5 = CalculateS5(n);
-double S6 = CalculateS6(n);
-double S7 = CalculateS7(n);
-
-Console.WriteLine($"S1: {S1}");
-Console.WriteLine($"S2: {S2}");
-Console.WriteLine($"S5: {S5}");
-Console.WriteLine($"S6: {S6}");
-Console.WriteLine($"S7: {S7}");
-
-
-double CalculateS1(int n)
+Console.Write("Enter precision (epsilon): ");
+if (!double.TryParse(Console.ReadLine(), out double epsilon) || epsilon <= 0)
 {
-    double sum = 0;
-    for (int i = 1; i <= n; i++)
-    {
-        sum += Math.Pow(-1, i + 1) / SumOfSquares(i);
-    }
-    return sum;
+    Console.WriteLine("Invalid precision. Please enter a positive number.");
+    return;
 }
 
-double CalculateS2(int n)
+double pi = CalculatePi(epsilon);
+Console.WriteLine($"  Approximation of pi: {pi}");
+
+Console.Write("Enter x (in radians) for sin(x): ");
+if (!double.TryParse(Console.ReadLine(), out double x))
 {
-    double sum = 1;
-    for (int i = 1; i <= n; i++)
+    Console.WriteLine("Invalid input. Please enter a number.");
+    return;
+}
+double sinX = CalculateSin(x, epsilon);
+Console.WriteLine($"  Approximation of sin({x}): {sinX}");
+
+Console.Write("Enter x for ln(1 + x): ");
+if (!double.TryParse(Console.ReadLine(), out double lnX))
+{
+    Console.WriteLine("Invalid input. Please enter a number.");
+    return;
+}
+double lnValue = CalculateLn(lnX, epsilon);
+Console.WriteLine($"  Approximation of ln(1 + {lnX}): {lnValue}");
+
+double cosX = CalculateCos(x, epsilon);
+Console.WriteLine($"  Approximation of cos({x}): {cosX}");
+double CalculatePi(double epsilon)
+{
+    double pi = 0;
+    double term;
+    int n = 0;
+
+    do
     {
-        sum += Math.Pow(-2, i) / Factorial(i);
-    }
-    return sum;
+        term = Math.Pow(-1, n) / (2 * n + 1);
+        pi += term;
+        n++;
+    } while (Math.Abs(term) >= epsilon);
+
+    return pi * 4;
 }
 
-double CalculateS5(int n)
+double CalculateSin(double x, double epsilon)
 {
-    double sum = 0;
-    for (int i = 1; i <= n; i++)
+    double sinX = 0;
+    double term;
+    int n = 0;
+
+    do
     {
-        sum += Math.Pow(-1, i + 1) / (2 * i);
-    }
-    return sum;
+        term = Math.Pow(-1, n) * Math.Pow(x, 2 * n + 1) / Factorial(2 * n + 1);
+        sinX += term;
+        n++;
+    } while (Math.Abs(term) >= epsilon);
+
+    return sinX;
 }
 
-double CalculateS6(int n)
+double CalculateLn(double x, double epsilon)
 {
-    double sum = 0;
-    for (int i = 1; i <= n; i++)
+    if (x <= -1)
     {
-        sum += Math.Pow(-1, i + 1) / SumOfNaturalNumbers(i);
+        Console.WriteLine("ln(1 + x) is not defined for x <= -1.");
+        return double.NaN;
     }
-    return sum;
+
+    double lnValue = 0;
+    double term;
+    int n = 1;
+
+    do
+    {
+        term = Math.Pow(-1, n - 1) * Math.Pow(x, n) / n;
+        lnValue += term;
+        n++;
+    } while (Math.Abs(term) >= epsilon);
+
+    return lnValue;
 }
 
-double CalculateS7(int n)
+double CalculateCos(double x, double epsilon)
 {
-    double sum = 1;
-    for (int i = 1; i <= n; i++)
-    {
-        sum += Math.Pow(2, i) / Factorial(i);
-    }
-    return sum;
-}
+    double cosX = 0;
+    double term;
+    int n = 0;
 
-double SumOfSquares(int n)
-{
-    double sum = 0;
-    for (int i = 1; i <= n; i++)
+    do
     {
-        sum += i * i;
-    }
-    return sum;
-}
+        term = Math.Pow(-1, n) * Math.Pow(x, 2 * n) / Factorial(2 * n);
+        cosX += term;
+        n++;
+    } while (Math.Abs(term) >= epsilon);
 
-double SumOfNaturalNumbers(int n)
-{
-    return n * (n + 1) / 2.0;
+    return cosX;
 }
 
 double Factorial(int n)
 {
-    double fact = 1;
+    double result = 1;
     for (int i = 1; i <= n; i++)
     {
-        fact *= i;
+        result *= i;
     }
-    return fact;
+    return result;
 }
